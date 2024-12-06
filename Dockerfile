@@ -1,4 +1,4 @@
-FROM apache/spark:3.5.3
+FROM apache/spark:latest
 
 USER root
 
@@ -6,19 +6,18 @@ USER root
 ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.2.2/hadoop-aws-3.2.2.jar /opt/spark/jars/
 ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.1026/aws-java-sdk-bundle-1.11.1026.jar /opt/spark/jars/
 
+# Spark 설정 파일 수정 (S3 관련 설정 추가)
+COPY spark-defaults.conf /opt/spark/conf/
+
 # Python 파일 복사할 디렉토리 생성
 RUN mkdir -p /opt/spark-apps
 
 # 로컬 Python 파일을 컨테이너로 복사
 COPY src/spark/read_s3.py /opt/spark-apps/read_s3.py
 
-COPY requirements.txt /opt/spark-apps/ 
+COPY requirements.txt /opt/spark-apps/
 RUN pip install --no-cache-dir --upgrade -r /opt/spark-apps/requirements.txt
 
 # spark-submit 실행 명령 추가
-#CMD ["spark-submit", "/opt/spark-apps/read_s3.py"]
-#CMD ["spark-submit", "/opt/spark-apps/read_s3.py", "&&", "tail", "-f", "/dev/null"]
-
-# Spark-submit 후 sleep 명령 추가
-CMD ["spark-submit", "/opt/spark-apps/read_s3.py", "&&", "sleep", "infinity"]
+CMD ["spark-submit", "/opt/spark-apps/read_s3.py"]
 

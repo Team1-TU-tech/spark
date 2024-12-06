@@ -2,52 +2,35 @@ services:
   spark-master:
     build: .
     container_name: spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
     environment:
-      - SPARK_MODE=master
       - SPARK_MASTER_HOST=spark-master
-      - SPARK_MASTER_PORT=7077
-      - SPARK_MASTER_WEBUI_PORT=8080
-      - SPARK_WORKER_MEMORY=1g
-      - SPARK_EXECUTOR_MEMORY=1g
-      - SPARK_WORKER_CORES=1
+      - SPARK_DRIVER_MEMORY=2G
+      - SPARK_EXECUTOR_MEMORY=2G
     ports:
-      - "8080:8080"   # Spark Web UI (for monitoring)
-      - "7077:7077"   # Spark master port (for worker connections)
+      - "8088:8088"   # Spark Web UI 포트
+      - "7077:7077"   # Spark master 포트
     networks:
-      - spark_net
+      - spark-net
     env_file:
       - .env
 
   spark-worker:
-    image: apache/spark:3.5.3
+    build: .
     container_name: spark-worker
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER=spark://spark-master:7077  # Connect to Spark master
-      - SPARK_WORKER_MEMORY=1g
-      - SPARK_EXECUTOR_MEMORY=1g
-      - SPARK_WORKER_CORES=1
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_NETWORK_TIMEOUT=300s  # 타임아웃을 5분(300초)로 설정
     depends_on:
       - spark-master
     networks:
-      - spark_net
-    command: "/bin/bash -c 'tail -f /dev/null'"
+      - spark-net
 
-  # spark-worker-2:
-  #   image: apache/spark:3.3.0
-  #   container_name: spark-worker-2
-  #   environment:
-  #     - SPARK_MODE=worker
-  #     - SPARK_MASTER=spark://spark-master:7077
-  #     - SPARK_WORKER_MEMORY=1g
-  #     - SPARK_EXECUTOR_MEMORY=1g
-  #     - SPARK_WORKER_CORES=1
-  #   depends_on:
-  #     - spark-master
-  #   networks:
-  #     - spark_net
 
 networks:
-  spark_net:
+  spark-net:
     driver: bridge
 
