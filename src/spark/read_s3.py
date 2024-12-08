@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 import os
 from dotenv import load_dotenv
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 
 load_dotenv()
 
@@ -12,9 +13,18 @@ spark = SparkSession.builder \
     .config("spark.hadoop.fs.s3a.endpoint", "s3.ap-northeast-2.amazonaws.com") \
     .getOrCreate()
 
-# S3에서 Parquet 파일 읽기
-df = spark.read.parquet("s3a://t1-tu-data/logs/2024-12-06_01-39-04.parquet")
+# 예상되는 스키마 정의
+schema = StructType([
+    StructField("region", IntegerType(), True),  # 'region' 컬럼을 Integer로 강제 변환
+])
 
-# 데이터 확인
-df.show()
+try:
+    print("Starting to read S3 file...")
+    df = spark.read.format('parquet').load("s3a://t1-tu-data/logs/")
+    print("Data preview:")
+    df.show()
+except Exception as e:
+    print(f"Error reading S3 file: {e}")
+finally:
+    spark.stop()
 
