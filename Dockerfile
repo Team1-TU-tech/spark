@@ -10,7 +10,7 @@ ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.1026/a
 COPY ./conf/ /opt/spark/conf/
 
 # 로컬 Python 파일을 컨테이너로 복사
-COPY src/spark/read_s3.py /opt/spark-apps/read_s3.py
+COPY src/spark/ /opt/spark-apps/
 
 COPY requirements.txt /opt/spark-apps/
 RUN pip install --no-cache-dir --upgrade -r /opt/spark-apps/requirements.txt
