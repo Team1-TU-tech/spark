@@ -1,0 +1,68 @@
+services:
+  spark-master:
+    build: .
+    container_name: spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
+    environment:
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_DRIVER_MEMORY=2G
+      - SPARK_EXECUTOR_MEMORY=2G
+        #- SPARK_LOCAL_IP=0.0.0.0  # 네트워크 설정 추가
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}  # 환경변수로 AWS 키 설정
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}  # 환경변수로 AWS 키 설정
+    volumes:
+      #  -  ./conf:/opt/spark/conf
+      - ./src/spark:/opt/spark-apps
+    ports:
+      - "8080:8080"   # Spark Web UI 포트
+      - "7077:7077"   # Spark master 포트
+    networks:
+      - spark-net
+    env_file:
+      - .env
+
+  spark-worker:
+    build: .
+    container_name: spark-worker
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2G
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ./conf:/opt/spark/conf
+    ports:
+      - "8081:8081"   # Spark Web UI 포트
+    depends_on:
+      - spark-master
+    networks:
+      - spark-net
+
+  # spark-submit:  # Spark Submit 서비스 정의
+  #   build: .
+  #   container_name: spark-submit  
+  #   environment:  
+  #     - SPARK_MASTER_URL=spark://spark-master:7077  # Spark 마스터의 URL을 지정. 작업 제출 시 마스터와 연결
+  #     - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+  #     - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+  #   networks:
+  #     - spark-net  
+  #   depends_on:
+  #     - spark-master  
+  #     - spark-worker  
+  #   volumes:
+  #     - ./src/spark:/opt/spark-apps
+  #   entrypoint:
+  #     - "spark-submit"
+  #     - "--master"  # Spark 마스터 노드 지정
+  #     - "spark://spark-master:7077"  # Spark 마스터의 URL을 지정하여 Spark 클러스터 모드에서 실행
+  #     - "--conf"  # 추가적인 설정 지정
+  #     - "spark.jars.ivy=/tmp/.ivy2"  # Ivy 캐시 경로를 /tmp/.ivy2로 설정하여 의존성 문제를 방지
+  #     - "/opt/spark-apps/read_s3.py"  # 실행할 PySpark 스크립트 파일 경로를 지정
+
+networks:
+  spark-net:
+    driver: bridge
+
