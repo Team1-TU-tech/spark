@@ -13,6 +13,7 @@ services:
     volumes:
       #  -  ./conf:/opt/spark/conf
       - ./src/spark:/opt/spark-apps
+      - ./airflow/tmp:/home/tmp
     ports:
       - "8080:8080"   # Spark Web UI 포트
       - "7077:7077"   # Spark master 포트

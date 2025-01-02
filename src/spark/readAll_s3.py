@@ -31,7 +31,7 @@ try:
     for log_dir in log_dir_list[1:]:
         print(f"s3a://t1-tu-data/{log_dir} loading...")
         df=df.unionByName(spark.read.parquet(f"s3a://t1-tu-data/{log_dir}"), allowMissingColumns=True)
-    print("Loading Completedi ::::")
+    print("::::: Loading Completed :::::")
     df.show()
     df.printSchema()
 
@@ -50,7 +50,7 @@ try:
         start_day=dt.datetime.strptime( f"{start_day.year}-{start_day.month}-{start_day.day+1}", "%Y-%m-%d" )
         e=start_day.strftime("%Y-%m-%d")
 
-        print(f"{s}~{e}")
+        print(f"::::: {s} ~ {e} :::::")
 
         spark.sql(f"SELECT * FROM logs WHERE CAST(timestamp as timestamp) BETWEEN '{s}' AND '{e}'").show()
     ###########################
