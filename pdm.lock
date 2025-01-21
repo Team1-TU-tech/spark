@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:2c15b6aaa3b6f6436974e4df3c26d0cc2a9ea1c2e43720b62f46c031dd558c39"
+content_hash = "sha256:3fdd5b7c46e7a57e57dd33235bec112bcdd46e60db91a99884fb6047bb8b0d7d"
 
 [[metadata.targets]]
 requires_python = "==3.11.*"
@@ -339,6 +339,20 @@ marker = "python_version == \"3.11\""
 files = [
     {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
     {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
+]
+
+[[package]]
+name = "spark"
+version = "0.1.0"
+requires_python = ">=3.8"
+path = "./."
+summary = "Default template for PDM package"
+groups = ["default"]
+marker = "python_version == \"3.11\""
+dependencies = [
+    "pyspark>=3.5.3",
+    "python-dotenv>=1.0.1",
+    "s3fs>=2024.10.0",
 ]
 
 [[package]]
